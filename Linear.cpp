@@ -16,24 +16,60 @@ constexpr unsigned short alto_fin = 1080;
 std::string rgb_entrada;
 std::optional<float> rgb_salida[ancho_fin * alto_fin * 3];
 
-unsigned int iter1 = 0, iter2 = 0;
-
 void redim_img()
 {
-    for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
+    unsigned short ancho_min;
+    unsigned short alto_min;
+    unsigned int iter1 = 0, iter2 = 0;
+    unsigned short norm_x = 0;
+    unsigned int norm_y = 0;
+    
+    if(ancho_in <= ancho_fin)
     {
-        for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
+        ancho_min = ancho_in;
+    }
+    else
+    {
+        ancho_min = ancho_fin;
+    }
+    
+    if(alto_in <= alto_fin)
+    {
+        alto_min = alto_in;
+    }
+    else
+    {
+        alto_min = alto_fin;
+    }
+    
+    for (unsigned short filas_y = 0; filas_y < alto_min; filas_y++)
+    {
+        for (unsigned short columnas_x = 0; columnas_x < ancho_min; columnas_x++)
         {
-            unsigned short norm_x = columnas_x * (float(ancho_fin) / (ancho_in - 1));
-
+            if(ancho_fin >= ancho_in)
+            {
+                norm_x = columnas_x * (float(ancho_fin) / (ancho_in - 1));
+            }
+            else
+            {
+                norm_x = columnas_x * (float(ancho_in) / (ancho_fin - 1));
+            }
+            
             if (norm_x == ancho_fin)
             {
                 norm_x = ancho_fin - 1;
             }
 
             norm_x *= 3;
-
-            int norm_y = filas_y * (float(alto_fin) / (alto_in - 1));
+            
+            if(alto_fin >= alto_in)
+            {
+                norm_y = filas_y * (float(alto_fin) / (alto_in - 1));
+            }
+            else
+            {
+                norm_y = filas_y * (float(alto_in) / (alto_fin - 1));
+            }
 
             if (norm_y == alto_fin)
             {
@@ -41,10 +77,28 @@ void redim_img()
             }
 
             norm_y *= ancho_fin * 3;
-
+            
             for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
             {
-                rgb_salida[norm_y + norm_x + cont_rgb] = static_cast<unsigned char>(rgb_entrada[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb]);
+                if(ancho_fin >= ancho_in && alto_fin >= alto_in)
+                {
+                    rgb_salida[norm_y + norm_x + cont_rgb] = static_cast<unsigned char>(rgb_entrada[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb]);
+                }
+                
+                if(ancho_fin <= ancho_in && alto_fin < alto_in || ancho_fin < ancho_in && alto_fin <= alto_in)
+                {
+                    rgb_salida[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = static_cast<unsigned char>(rgb_entrada[norm_y + norm_x + cont_rgb]);
+                }
+                
+                if(ancho_fin > ancho_in && alto_fin < alto_in)
+                {
+                    rgb_salida[(filas_y * ancho_fin * 3) + norm_x + cont_rgb] = static_cast<unsigned char>(rgb_entrada[norm_y + (columnas_x * 3) + cont_rgb]);
+                }
+                
+                if(ancho_fin < ancho_in && alto_fin > alto_in)
+                {
+                    rgb_salida[norm_y + (columnas_x * 3) + cont_rgb] = static_cast<unsigned char>(rgb_entrada[(filas_y * ancho_fin * 3) + norm_x + cont_rgb]);
+                }
             }
         }
     }
@@ -143,6 +197,11 @@ int main()
     GetUserName(w_usr, &tam_w_usr);
     std::string n_usr(w_usr, w_usr + tam_w_usr);
     n_usr.pop_back();
+    
+    enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (static_cast<unsigned char>(ancho_fin / 256) * 256));
+    enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
+    enc_bmp[22] = static_cast<unsigned char>(alto_fin - (static_cast<unsigned char>(alto_fin / 256) * 256));
+    enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
 
     rgb_entrada.push_back(0x00);
     rgb_entrada.push_back(0x00);
