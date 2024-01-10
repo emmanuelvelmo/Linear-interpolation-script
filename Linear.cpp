@@ -198,9 +198,9 @@ int main()
     std::string n_usr(w_usr, w_usr + tam_w_usr);
     n_usr.pop_back();
     
-    enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (static_cast<unsigned char>(ancho_fin / 256) * 256));
+    enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
     enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
-    enc_bmp[22] = static_cast<unsigned char>(alto_fin - (static_cast<unsigned char>(alto_fin / 256) * 256));
+    enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
     enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
 
     rgb_entrada.push_back(0x00);
